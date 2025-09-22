@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusGuard - Procrastination Detector</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <i class="fas fa-shield-alt logo"></i>
+            <h1>FocusGuard</h1>
+        </div>
+        
+        <p class="description">Stay focused on your tasks by blocking distracting websites</p>
+        
+        <div class="status-indicator">
+            <div class="status-dot"></div>
+            <span>Protection Active</span>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-tasks section-icon"></i>
+                <h2>Current Task</h2>
+            </div>
+            
+            <input type="text" id="task-input" placeholder="What are you working on?" value="">
+            
+            <div class="task-list" id="task-list">
+                <div class="task-item">
+                    <span>Python Programming</span>
+                    <div class="task-actions">
+                        <button class="btn"><i class="fas fa-play"></i></button>
+                        <button class="btn-secondary"><i class="fas fa-edit"></i></button>
+                    </div>
+                </div>
+                <div class="task-item">
+                    <span>Learn Spanish vocabulary</span>
+                    <div class="task-actions">
+                        <button class="btn"><i class="fas fa-play"></i></button>
+                        <button class="btn-secondary"><i class="fas fa-edit"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn" id="add-task-btn"><i class="fas fa-plus"></i> Add New Task</button>
+
+            <div class="section-title">
+                <i class="fas fa-tasks section-icon"></i>
+                <h2>Current Tabs</h2>
+            </div>
+            <div id="tabs">
+                <p>No tabs information available</p>
+                <div id="tab-similarity-loading" style="display:none; margin-top:10px;">Loading AI model...</div>
+                <div id="tab-task-similarity" style="display:none; margin-top:10px;"></div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-sliders-h section-icon"></i>
+                <h2>Focus Settings</h2>
+            </div>
+            
+            <div class="threshold-display">
+                Sensitivity: <span id="threshold-value">0.5</span>
+            </div>
+            
+            <div class="slider-container">
+                <input type="range" min="0" max="1" step="0.01" value="0.35" class="slider" id="similarity-slider">
+                <div class="slider-labels">
+                    <span>Lenient</span>
+                    <span>Strict</span>
+                </div>
+            </div>
+            
+            <div class="mode-selector">
+                <div class="mode-btn active">Focus Mode</div>
+                <div class="mode-btn">Break Time</div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                <span>Block distracting sites:</span>
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider-toggle"></span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-chart-pie section-icon"></i>
+                <h2>Today's Focus</h2>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value">87%</div>
+                    <div class="stat-label">Productivity</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">42</div>
+                    <div class="stat-label">Blocks Avoided</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">3.2h</div>
+                    <div class="stat-label">Focused Time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Distractions</div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="btn" style="width: 100%; margin-bottom: 15px;">
+            <i class="fas fa-cog"></i> Extension Settings
+        </button>
+        
+        <div class="footer">
+            <p>FocusGuard protects your focus without collecting your data</p>
+            <p>All processing happens locally on your device</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.1"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Dynamic URL Blocker",
+  "version": "1.0",
+  "permissions": [
+    "storage",
+    "webNavigation",
+    "scripting",
+    "activeTab",
+    "tabs",
+    "webRequest",
+    "webRequestBlocking"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "scripts": ["background.js"]
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-script.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    },
+    {
+      "matches": ["file:///D:/project/web/extensions/procrastiguard/index.html"],
+      "js": ["contentExtractor.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
