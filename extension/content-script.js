@@ -21,23 +21,19 @@ function checkAndBlock() {
       return;
     }
 
-    // Check if current page matches any allowed item
+    // Check if current page matches any allowed item (exact match only)
     const isAllowed = allowedTitles.some(allowed =>
-      pageTitle.includes(allowed) || currentUrl.includes(allowed)
+      pageTitle === allowed || currentUrl === allowed
     );
     if (isAllowed) {
       console.log('Page is allowed, skipping block');
       return;
     }
 
-    // Check if current page title matches any in our blocklist
-    const shouldBlock = blockedTitles.some(blockedTitle => {
-      const isBlocked = pageTitle.includes(blockedTitle) || currentUrl.includes(blockedTitle);
-      if (isBlocked) {
-        console.log('Blocking match found:', blockedTitle);
-      }
-      return isBlocked;
-    });
+    // Block only if current page title or URL exactly matches a blocklist item
+    const shouldBlock = blockedTitles.some(blockedTitle =>
+      pageTitle === blockedTitle || currentUrl === blockedTitle
+    );
 
     if (shouldBlock) {
       console.log('Blocking page:', pageTitle);

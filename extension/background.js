@@ -107,8 +107,9 @@ chrome.webRequest.onBeforeRequest.addListener(
       return { cancel: false };
     }
 
-    const shouldBlock = blockedUrls.some(blockedTitle => 
-      currentUrl.includes(blockedTitle)
+    // Block only if the current URL exactly matches a blocked URL
+    const shouldBlock = blockedUrls.some(blockedUrl => 
+      currentUrl === blockedUrl
     );
 
     if (shouldBlock) {
