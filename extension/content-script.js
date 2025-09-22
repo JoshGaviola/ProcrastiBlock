@@ -16,7 +16,7 @@ function checkAndBlock() {
     console.log('Current page:', pageTitle, currentUrl);
 
     // Don't block the blocked page itself or extension pages
-    if (currentUrl.includes('blocked.html') || currentUrl.includes('chrome-extension://')) {
+    if (currentUrl.includes('blocked.html') || currentUrl.includes('chrome-extension://') || currentUrl === 'file:///D:/project/web/ProcrastiBlock/index.html') {
       console.log('Skipping blocked/extension page');
       return;
     }

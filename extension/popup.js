@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Extract from FocusGuard
   document.getElementById('extractBtn').onclick = () => {
-      chrome.tabs.query({url: "file:///D:/project/web/ProcrastiBlock/dashboard/index.html"}, (tabs) => {
+      chrome.tabs.query({url: "file:///D:/project/web/ProcrastiBlock/index.html"}, (tabs) => {
       if (tabs.length > 0) {
         chrome.tabs.sendMessage(tabs[0].id, {action: "triggerExtraction"});
         alert('Extraction request sent to FocusGuard');

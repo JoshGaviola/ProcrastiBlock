@@ -133,7 +133,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // Periodically check for irrelevant tabs
 setInterval(() => {
-  chrome.tabs.query({url: "file:///D:/project/web/ProcrastiBlock/dashboard/index.html"}, (tabs) => {
+  chrome.tabs.query({url: "file:///D:/project/web/ProcrastiBlock/index.html"}, (tabs) => {
     if (tabs.length > 0) {
       console.log('Sending cleanup trigger to FocusGuard tab');
       chrome.tabs.sendMessage(tabs[0].id, {action: "triggerCleanup"});

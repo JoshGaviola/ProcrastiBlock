@@ -30,7 +30,7 @@
       "run_at": "document_end"
     },
     {
-      "matches": ["file:///D:/project/web/ProcrastiBlock/dashboard/index.html"],
+      "matches": ["file:///D:/project/web/ProcrastiBlock/index.html"],
       "js": ["contentExtractor.js"],
       "run_at": "document_idle"
     },
