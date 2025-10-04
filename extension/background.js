@@ -66,55 +66,54 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 let blockedUrls = [];
 let allowedUrls = [];
 let blockingEnabled = false;
+let warningMode = false; // NEW
 
-// Load initial values from storage
-chrome.storage.local.get({ blockedUrls: [], allowedUrls: [], blockingEnabled: false }, (data) => {
+chrome.storage.local.get({ blockedUrls: [], allowedUrls: [], blockingEnabled: false, warningMode: false }, (data) => {
   blockedUrls = data.blockedUrls;
   allowedUrls = data.allowedUrls;
   blockingEnabled = data.blockingEnabled;
-  console.log('Background script loaded. Blocking:', blockingEnabled, 'Blocked:', blockedUrls, 'Allowed:', allowedUrls);
+  warningMode = data.warningMode; // NEW
 });
 
-// Keep values in sync when popup updates them
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "local") {
-    if (changes.blockedUrls) {
-      blockedUrls = changes.blockedUrls.newValue || [];
-      console.log('Blocked URLs updated:', blockedUrls);
-    }
-    if (changes.allowedUrls) {
-      allowedUrls = changes.allowedUrls.newValue || [];
-      console.log('Allowed URLs updated:', allowedUrls);
-    }
-    if (changes.blockingEnabled) {
-      blockingEnabled = changes.blockingEnabled.newValue;
-      console.log('Blocking enabled:', blockingEnabled);
-    }
+    if (changes.blockedUrls) blockedUrls = changes.blockedUrls.newValue || [];
+    if (changes.allowedUrls) allowedUrls = changes.allowedUrls.newValue || [];
+    if (changes.blockingEnabled) blockingEnabled = changes.blockingEnabled.newValue;
+    if (changes.warningMode) warningMode = changes.warningMode.newValue; // NEW
   }
 });
 
 // Blocking method using webRequest API, skip allowedUrls
 chrome.webRequest.onBeforeRequest.addListener(
   function(details) {
-    if (!blockingEnabled) {
+    if (!blockingEnabled && !warningMode) {
       return { cancel: false };
     }
 
     const currentUrl = details.url;
-    // If allowedUrls matches, do NOT block
     const isAllowed = allowedUrls.some(allowed => currentUrl.includes(allowed));
     if (isAllowed) {
       return { cancel: false };
     }
 
-    // Block only if the current URL exactly matches a blocked URL
-    const shouldBlock = blockedUrls.some(blockedUrl => 
-      currentUrl === blockedUrl
-    );
+    const shouldBlock = blockedUrls.some(blockedUrl => currentUrl === blockedUrl);
 
     if (shouldBlock) {
-      console.log('Blocking request to:', currentUrl);
-      return { redirectUrl: chrome.runtime.getURL("blocked.html") + "?url=" + encodeURIComponent(currentUrl) };
+      if (warningMode) {
+        // Inject warning popup instead of blocking
+        if (details.type === 'main_frame' && details.tabId >= 0) {
+          chrome.tabs.sendMessage(details.tabId, {
+            action: 'showIrrelevantWarning',
+            url: currentUrl
+          });
+        }
+        return { cancel: false };
+      }
+      // Hard block (redirect)
+      if (blockingEnabled) {
+        return { redirectUrl: chrome.runtime.getURL("blocked.html") + "?url=" + encodeURIComponent(currentUrl) };
+      }
     }
 
     return { cancel: false };
@@ -122,6 +121,18 @@ chrome.webRequest.onBeforeRequest.addListener(
   { urls: ["<all_urls>"] },
   ["blocking"]
 );
+
+// Listen for messages to set/get warningMode
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'getWarningMode') {
+    sendResponse({ enabled: warningMode });
+  } else if (request.action === 'setWarningMode') {
+    warningMode = !!request.enabled;
+    chrome.storage.local.set({ warningMode });
+    sendResponse({ success: true });
+  }
+  return true;
+});
 
 // Cleanup function
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

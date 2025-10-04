@@ -1,10 +1,8 @@
 // Check if blocking is enabled before wiping the page
 function checkAndBlock() {
-  chrome.storage.local.get(['blockingEnabled', 'blockedUrls', 'allowedUrls'], (result) => {
-    console.log('Content script loaded. Blocking enabled:', result.blockingEnabled);
-
-    if (result.blockingEnabled === false) {
-      console.log('Blocking is disabled, skipping');
+  chrome.storage.local.get(['blockingEnabled', 'blockedUrls', 'allowedUrls', 'warningMode'], (result) => {
+    const warningMode = result.warningMode;
+    if (result.blockingEnabled === false && !warningMode) {
       return;
     }
 
@@ -36,6 +34,10 @@ function checkAndBlock() {
     );
 
     if (shouldBlock) {
+      if (warningMode) {
+        injectIrrelevantWarningPopup(currentUrl);
+        return;
+      }
       console.log('Blocking page:', pageTitle);
       blockPage(pageTitle);
     } else {
@@ -112,6 +114,47 @@ function blockPage(pageTitle) {
   document.documentElement.innerHTML = blockHTML;
   window.stop();
 }
+
+function injectIrrelevantWarningPopup(blockedUrl) {
+  if (document.getElementById('pb-irrelevant-warning-popup')) return;
+  const popup = document.createElement('div');
+  popup.id = 'pb-irrelevant-warning-popup';
+  popup.style.cssText = `
+    position: fixed; top: 24px; right: 24px; z-index: 2147483647;
+    background: #fff3cd; color: #664d03; border: 1px solid #ffe69c;
+    padding: 18px 22px; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+    font-size: 16px; max-width: 350px; min-width: 220px;
+    display: flex; flex-direction: column; align-items: flex-start;
+    animation: pb-slide-in 0.4s cubic-bezier(.4,2,.3,1);
+  `;
+  popup.innerHTML = `
+    <div style="font-weight:600; margin-bottom:8px;">⚠️ Not Related to Your Task</div>
+    <div style="margin-bottom:12px;">This site (<span style="font-weight:bold;">${blockedUrl}</span>) is marked as irrelevant to your current focus.</div>
+    <button id="pb-irrelevant-warning-dismiss" style="
+      align-self: flex-end;
+      background:#fff; border:1px solid #d3b800; color:#664d03; padding:6px 14px; border-radius:6px; cursor:pointer;
+      font-size: 14px;
+    ">Dismiss</button>
+    <style>
+      @keyframes pb-slide-in {
+        from { opacity: 0; transform: translateY(-30px) scale(0.95);}
+        to { opacity: 1; transform: translateY(0) scale(1);}
+      }
+    </style>
+  `;
+  document.body.appendChild(popup);
+  document.getElementById('pb-irrelevant-warning-dismiss')?.addEventListener('click', () => {
+    popup.remove();
+  });
+}
+
+// Listen for background-triggered warnings
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'showIrrelevantWarning' && request.url) {
+    injectIrrelevantWarningPopup(request.url);
+  }
+});
 
 // Listen for storage changes to update blocking in real-time
 chrome.storage.onChanged.addListener((changes, namespace) => {
