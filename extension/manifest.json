@@ -17,7 +17,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "FocusGuard"
+    "default_title": "ProcrastiBlock"
   },
   "background": {
     "service_worker": "background.js",
