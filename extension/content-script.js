@@ -123,7 +123,7 @@ function injectIrrelevantWarningPopup(blockedUrl) {
   `;
   popup.innerHTML = `
     <div style="font-weight:600; margin-bottom:8px;">⚠️ Not Related to Your Task</div>
-    <div style="margin-bottom:12px;">This site (<span style="font-weight:bold;">${blockedUrl}</span>) is marked as irrelevant to your current focus.</div>
+    <div style="margin-bottom:12px;">This tab (<span style="font-weight:bold;">${document.title}</span>) is marked as irrelevant to your current focus.</div>
     <button id="pb-irrelevant-warning-dismiss" style="
       align-self: flex-end;
       background:#fff; border:1px solid #d3b800; color:#664d03; padding:6px 14px; border-radius:6px; cursor:pointer;
