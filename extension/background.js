@@ -100,16 +100,6 @@ chrome.webRequest.onBeforeRequest.addListener(
     const shouldBlock = blockedUrls.some(blockedUrl => currentUrl === blockedUrl);
 
     if (shouldBlock) {
-      if (warningMode) {
-        // Inject warning popup instead of blocking
-        if (details.type === 'main_frame' && details.tabId >= 0) {
-          chrome.tabs.sendMessage(details.tabId, {
-            action: 'showIrrelevantWarning',
-            url: currentUrl
-          });
-        }
-        return { cancel: false };
-      }
       // Hard block (redirect)
       if (blockingEnabled) {
         return { redirectUrl: chrome.runtime.getURL("blocked.html") + "?url=" + encodeURIComponent(currentUrl) };

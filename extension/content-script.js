@@ -11,11 +11,8 @@ function checkAndBlock() {
     const currentUrl = window.location.href;
     const pageTitle = document.title || '';
 
-    console.log('Current page:', pageTitle, currentUrl);
-
     // Don't block the blocked page itself or extension pages
     if (currentUrl.includes('blocked.html') || currentUrl.includes('chrome-extension://') || currentUrl === 'file:///D:/project/web/ProcrastiBlock/index.html') {
-      console.log('Skipping blocked/extension page');
       return;
     }
 
@@ -24,7 +21,6 @@ function checkAndBlock() {
       pageTitle === allowed || currentUrl === allowed
     );
     if (isAllowed) {
-      console.log('Page is allowed, skipping block');
       return;
     }
 
@@ -38,10 +34,7 @@ function checkAndBlock() {
         injectIrrelevantWarningPopup(currentUrl);
         return;
       }
-      console.log('Blocking page:', pageTitle);
       blockPage(pageTitle);
-    } else {
-      console.log('No blocking required for this page');
     }
   });
 }
