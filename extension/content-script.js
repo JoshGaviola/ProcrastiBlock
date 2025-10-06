@@ -94,7 +94,7 @@ function blockPage(pageTitle) {
     <body>
       <div class="block-container">
         <h1>🚫 Site Blocked</h1>
-        <p>"${pageTitle}" has been blocked by FocusGuard</p>
+        <p>"${pageTitle}" has been blocked by ProcrastiBlock</p>
         <div>
           <button class="button" onclick="window.history.back()">Go Back</button>
           <button class="button" onclick="window.location.href = 'https://www.google.com'">Go to Google</button>
