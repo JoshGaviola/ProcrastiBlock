@@ -67,12 +67,14 @@ let blockedUrls = [];
 let allowedUrls = [];
 let blockingEnabled = false;
 let warningMode = false; // NEW
+let timerMode = false; // NEW
 
-chrome.storage.local.get({ blockedUrls: [], allowedUrls: [], blockingEnabled: false, warningMode: false }, (data) => {
+chrome.storage.local.get({ blockedUrls: [], allowedUrls: [], blockingEnabled: false, warningMode: false, timerMode: false }, (data) => {
   blockedUrls = data.blockedUrls;
   allowedUrls = data.allowedUrls;
   blockingEnabled = data.blockingEnabled;
   warningMode = data.warningMode; // NEW
+  timerMode = data.timerMode; // NEW
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {
@@ -81,13 +83,14 @@ chrome.storage.onChanged.addListener((changes, area) => {
     if (changes.allowedUrls) allowedUrls = changes.allowedUrls.newValue || [];
     if (changes.blockingEnabled) blockingEnabled = changes.blockingEnabled.newValue;
     if (changes.warningMode) warningMode = changes.warningMode.newValue; // NEW
+    if (changes.timerMode) timerMode = changes.timerMode.newValue; // NEW
   }
 });
 
-// Blocking method using webRequest API, skip allowedUrls
+// Blocking method using webRequest API
 chrome.webRequest.onBeforeRequest.addListener(
   function(details) {
-    if (!blockingEnabled && !warningMode) {
+    if (!blockingEnabled && !warningMode && !timerMode) {
       return { cancel: false };
     }
 
@@ -100,6 +103,20 @@ chrome.webRequest.onBeforeRequest.addListener(
     const shouldBlock = blockedUrls.some(blockedUrl => currentUrl === blockedUrl);
 
     if (shouldBlock) {
+      if (timerMode) {
+        // Inject timer popup instead of blocking
+        if (details.type === 'main_frame' && details.tabId >= 0) {
+          chrome.storage.local.get(['timerDuration'], (result) => {
+            const duration = result.timerDuration || 30; // Default to 30 seconds
+            chrome.tabs.sendMessage(details.tabId, {
+              action: 'showTimerPopup',
+              duration: duration,
+              url: currentUrl
+            });
+          });
+        }
+        return { cancel: false };
+      }
       // Hard block (redirect)
       if (blockingEnabled) {
         return { redirectUrl: chrome.runtime.getURL("blocked.html") + "?url=" + encodeURIComponent(currentUrl) };

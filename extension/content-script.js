@@ -1,8 +1,9 @@
 // Check if blocking is enabled before wiping the page
 function checkAndBlock() {
-  chrome.storage.local.get(['blockingEnabled', 'blockedUrls', 'allowedUrls', 'warningMode'], (result) => {
+  chrome.storage.local.get(['blockingEnabled', 'blockedUrls', 'allowedUrls', 'warningMode', 'timerMode'], (result) => {
     const warningMode = result.warningMode;
-    if (result.blockingEnabled === false && !warningMode) {
+    const timerMode = result.timerMode;
+    if (result.blockingEnabled === false && !warningMode && !timerMode) {
       return;
     }
 
@@ -30,6 +31,13 @@ function checkAndBlock() {
     );
 
     if (shouldBlock) {
+      if (timerMode) {
+        chrome.storage.local.get(['timerDuration'], (res) => {
+          const duration = res.timerDuration || 30;
+          injectTimerPopup(duration, currentUrl);
+        });
+        return;
+      }
       if (warningMode) {
         injectIrrelevantWarningPopup(currentUrl);
         return;
@@ -142,10 +150,89 @@ function injectIrrelevantWarningPopup(blockedUrl) {
   });
 }
 
+function injectTimerPopup(duration, blockedUrl) {
+  if (document.getElementById('pb-timer-popup')) return; // Prevent duplicates
+
+  const popup = document.createElement('div');
+  popup.id = 'pb-timer-popup';
+  popup.style.cssText = `
+    position: fixed; top: 24px; right: 24px; z-index: 2147483647;
+    background: #fff3cd; color: #664d03; border: 1px solid #ffe69c;
+    padding: 18px 22px; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+    font-size: 16px; max-width: 350px; min-width: 220px;
+    display: flex; flex-direction: column; align-items: flex-start;
+    animation: pb-slide-in 0.4s cubic-bezier(.4,2,.3,1);
+  `;
+
+  let timeLeft = duration;
+  let intervalId;
+
+  function updateCountdown() {
+    const min = Math.floor(timeLeft / 60);
+    const sec = timeLeft % 60;
+    countdownEl.textContent = `Time left: ${min}m ${sec}s`;
+    timeLeft--;
+    if (timeLeft < 0) {
+      clearInterval(intervalId);
+      alert('Time\'s up! This tab will be closed.');
+      window.close(); // Close the tab
+    }
+  }
+
+  popup.innerHTML = `
+    <div style="font-weight:600; margin-bottom:8px;">⏱️ Timer Mode</div>
+    <div style="margin-bottom:12px;">This tab (<span style="font-weight:bold;">${document.title}</span>) is irrelevant. Stay focused!</div>
+    <div id="countdown" style="font-weight:500; margin-bottom:12px;"></div>
+    <button id="pb-timer-minimize" style="
+      align-self: flex-end;
+      background:#fff; border:1px solid #d3b800; color:#664d03; padding:6px 14px; border-radius:6px; cursor:pointer;
+      font-size: 14px;
+    ">Minimize</button>
+    <style>
+      @keyframes pb-slide-in {
+        from { opacity: 0; transform: translateY(-30px) scale(0.95);}
+        to { opacity: 1; transform: translateY(0) scale(1);}
+      }
+      .minimized {
+        padding: 8px 12px !important;
+        max-width: 200px !important;
+        min-width: 150px !important;
+      }
+      .minimized .full-content { display: none; }
+      .minimized .minimized-content { display: block; }
+    </style>
+  `;
+
+  document.body.appendChild(popup);
+
+  const countdownEl = document.getElementById('countdown');
+  const minimizeBtn = document.getElementById('pb-timer-minimize');
+
+  // Start countdown
+  updateCountdown();
+  intervalId = setInterval(updateCountdown, 1000);
+
+  // Minimize functionality
+  minimizeBtn.addEventListener('click', () => {
+    popup.classList.toggle('minimized');
+    minimizeBtn.textContent = popup.classList.contains('minimized') ? 'Expand' : 'Minimize';
+  });
+
+  // Prevent removal (override context menu or other removal attempts)
+  popup.addEventListener('contextmenu', (e) => e.preventDefault());
+  popup.addEventListener('keydown', (e) => {
+    if (e.key === 'Delete' || e.key === 'Backspace') e.preventDefault();
+  });
+}
+
 // Listen for background-triggered warnings
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'showIrrelevantWarning' && request.url) {
     injectIrrelevantWarningPopup(request.url);
+  }
+  if (request.action === 'showTimerPopup' && request.duration && request.url) {
+    injectTimerPopup(request.duration, request.url);
   }
 });
 
