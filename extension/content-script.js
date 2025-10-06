@@ -166,7 +166,8 @@ function injectTimerPopup(duration, blockedUrl) {
   `;
 
   let timeLeft = duration;
-  let intervalId;
+  let intervalId = null;
+  let isActive = document.hasFocus();
 
   function updateCountdown() {
     const min = Math.floor(timeLeft / 60);
@@ -177,6 +178,20 @@ function injectTimerPopup(duration, blockedUrl) {
       clearInterval(intervalId);
       alert('Time\'s up! This tab will be closed.');
       window.close(); // Close the tab
+    }
+  }
+
+  function startTimer() {
+    if (!intervalId && isActive) {
+      updateCountdown();
+      intervalId = setInterval(updateCountdown, 1000);
+    }
+  }
+
+  function stopTimer() {
+    if (intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
     }
   }
 
@@ -209,9 +224,19 @@ function injectTimerPopup(duration, blockedUrl) {
   const countdownEl = document.getElementById('countdown');
   const minimizeBtn = document.getElementById('pb-timer-minimize');
 
-  // Start countdown
-  updateCountdown();
-  intervalId = setInterval(updateCountdown, 1000);
+  // Initial start if tab is focused
+  if (isActive) startTimer();
+
+  // Listen for tab focus/blur events
+  window.addEventListener('focus', () => {
+    isActive = true;
+    startTimer();
+  });
+
+  window.addEventListener('blur', () => {
+    isActive = false;
+    stopTimer();
+  });
 
   // Minimize functionality
   minimizeBtn.addEventListener('click', () => {
