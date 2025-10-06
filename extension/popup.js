@@ -220,57 +220,84 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   const blockingEnabledCheckbox = document.getElementById('blockingEnabled');
-  const warningModeCheckbox = document.getElementById('warningMode');
+const warningModeCheckbox = document.getElementById('warningMode');
+const timerModeCheckbox = document.getElementById('timerMode');
 
-  // Initialize checkboxes from storage (mutually exclusive on load)
-  chrome.storage.local.get(['blockingEnabled', 'warningMode'], (result) => {
-    let blockingEnabled = !!result.blockingEnabled;
-    let warningMode = !!result.warningMode;
+// Initialize checkboxes from storage (mutually exclusive on load)
+chrome.storage.local.get(['blockingEnabled', 'warningMode', 'timerMode'], (result) => {
+  let blockingEnabled = !!result.blockingEnabled;
+  let warningMode = !!result.warningMode;
+  let timerMode = !!result.timerMode;
 
-    // If both are true, default to blockingEnabled
-    if (blockingEnabled && warningMode) {
-      warningMode = false;
-      chrome.storage.local.set({ warningMode: false });
-    }
+  // If multiple are true, default to blockingEnabled > warningMode > timerMode
+  if (blockingEnabled && (warningMode || timerMode)) {
+    warningMode = false;
+    timerMode = false;
+    chrome.storage.local.set({ warningMode: false, timerMode: false });
+  } else if (warningMode && timerMode) {
+    timerMode = false;
+    chrome.storage.local.set({ timerMode: false });
+  }
 
-    blockingEnabledCheckbox.checked = blockingEnabled;
-    warningModeCheckbox.checked = warningMode;
+  blockingEnabledCheckbox.checked = blockingEnabled;
+  warningModeCheckbox.checked = warningMode;
+  timerModeCheckbox.checked = timerMode;
+});
+
+// Make checkboxes mutually exclusive
+blockingEnabledCheckbox.onchange = (e) => {
+  if (e.target.checked) {
+    warningModeCheckbox.checked = false;
+    timerModeCheckbox.checked = false;
+    chrome.storage.local.set({blockingEnabled: true, warningMode: false, timerMode: false});
+  } else {
+    chrome.storage.local.set({blockingEnabled: false});
+  }
+  // Optionally refresh tabs
+  chrome.tabs.query({}, (tabs) => {
+    tabs.forEach(tab => {
+      if (tab.url && !tab.url.includes('chrome://')) {
+        chrome.tabs.reload(tab.id);
+      }
+    });
   });
+};
 
-  // Make checkboxes mutually exclusive
-  blockingEnabledCheckbox.onchange = (e) => {
-    if (e.target.checked) {
-      warningModeCheckbox.checked = false;
-      chrome.storage.local.set({blockingEnabled: true, warningMode: false});
-    } else {
-      chrome.storage.local.set({blockingEnabled: false});
-    }
-    // Optionally refresh tabs
-    chrome.tabs.query({}, (tabs) => {
-      tabs.forEach(tab => {
-        if (tab.url && !tab.url.includes('chrome://')) {
-          chrome.tabs.reload(tab.id);
-        }
-      });
+warningModeCheckbox.onchange = (e) => {
+  if (e.target.checked) {
+    blockingEnabledCheckbox.checked = false;
+    timerModeCheckbox.checked = false;
+    chrome.storage.local.set({warningMode: true, blockingEnabled: false, timerMode: false});
+  } else {
+    chrome.storage.local.set({warningMode: false});
+  }
+  // Optionally refresh tabs
+  chrome.tabs.query({}, (tabs) => {
+    tabs.forEach(tab => {
+      if (tab.url && !tab.url.includes('chrome://')) {
+        chrome.tabs.reload(tab.id);
+      }
     });
-  };
+  });
+};
 
-  warningModeCheckbox.onchange = (e) => {
-    if (e.target.checked) {
-      blockingEnabledCheckbox.checked = false;
-      chrome.storage.local.set({warningMode: true, blockingEnabled: false});
-    } else {
-      chrome.storage.local.set({warningMode: false});
-    }
-    // Optionally refresh tabs
-    chrome.tabs.query({}, (tabs) => {
-      tabs.forEach(tab => {
-        if (tab.url && !tab.url.includes('chrome://')) {
-          chrome.tabs.reload(tab.id);
-        }
-      });
+timerModeCheckbox.onchange = (e) => {
+  if (e.target.checked) {
+    blockingEnabledCheckbox.checked = false;
+    warningModeCheckbox.checked = false;
+    chrome.storage.local.set({timerMode: true, blockingEnabled: false, warningMode: false});
+  } else {
+    chrome.storage.local.set({timerMode: false});
+  }
+  // Optionally refresh tabs
+  chrome.tabs.query({}, (tabs) => {
+    tabs.forEach(tab => {
+      if (tab.url && !tab.url.includes('chrome://')) {
+        chrome.tabs.reload(tab.id);
+      }
     });
-  };
+  });
+};
 
   // Check if we have necessary permissions
   chrome.permissions.contains({
