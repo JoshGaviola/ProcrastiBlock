@@ -222,6 +222,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const blockingEnabledCheckbox = document.getElementById('blockingEnabled');
 const warningModeCheckbox = document.getElementById('warningMode');
 const timerModeCheckbox = document.getElementById('timerMode');
+const timerChoiceContainer = document.getElementById('timerChoiceContainer');
+const timerChoices = document.getElementsByName('timerChoice');
+const customTimerValue = document.getElementById('customTimerValue');
 
 // Initialize checkboxes from storage (mutually exclusive on load)
 chrome.storage.local.get(['blockingEnabled', 'warningMode', 'timerMode'], (result) => {
@@ -286,10 +289,12 @@ timerModeCheckbox.onchange = (e) => {
     blockingEnabledCheckbox.checked = false;
     warningModeCheckbox.checked = false;
     chrome.storage.local.set({timerMode: true, blockingEnabled: false, warningMode: false});
+    timerChoiceContainer.style.display = 'block';
   } else {
     chrome.storage.local.set({timerMode: false});
+    timerChoiceContainer.style.display = 'none';
+    chrome.storage.local.remove(['timerDuration']);
   }
-  // Optionally refresh tabs
   chrome.tabs.query({}, (tabs) => {
     tabs.forEach(tab => {
       if (tab.url && !tab.url.includes('chrome://')) {
@@ -298,6 +303,54 @@ timerModeCheckbox.onchange = (e) => {
     });
   });
 };
+
+// Save timer choice to storage
+function saveTimerChoice() {
+  let duration = null;
+  timerChoices.forEach(choice => {
+    if (choice.checked) {
+      if (choice.value === 'custom') {
+        const customValue = parseInt(customTimerValue.value, 10);
+        if (!isNaN(customValue) && customValue > 0 && customValue <= 3600) {
+          duration = customValue;
+        }
+      } else {
+        duration = parseInt(choice.value, 10);
+      }
+    }
+  });
+  if (duration) {
+    chrome.storage.local.set({ timerDuration: duration });
+  }
+}
+
+// Listen for changes to timer choices
+timerChoices.forEach(choice => {
+  choice.addEventListener('change', saveTimerChoice);
+});
+customTimerValue.addEventListener('input', function() {
+  if (document.getElementById('timerCustom').checked) {
+    saveTimerChoice();
+  }
+});
+
+// Show timer choices if timerMode is enabled on load and restore selection
+chrome.storage.local.get(['timerMode', 'timerDuration'], (result) => {
+  if (result.timerMode) {
+    timerChoiceContainer.style.display = 'block';
+    let found = false;
+    timerChoices.forEach(choice => {
+      if (choice.value !== 'custom' && result.timerDuration == choice.value) {
+        choice.checked = true;
+        found = true;
+      }
+    });
+    if (!found && result.timerDuration) {
+      document.getElementById('timerCustom').checked = true;
+      customTimerValue.value = result.timerDuration;
+    }
+  }
+});
 
   // Check if we have necessary permissions
   chrome.permissions.contains({

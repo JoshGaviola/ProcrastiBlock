@@ -209,7 +209,15 @@
       <label>
         <input type="checkbox" id="timerMode"> Enable Timer Mode
       </label>
-      
+      <div id="timerChoiceContainer" style="display:none; margin-top:8px;">
+        <label><input type="radio" name="timerChoice" value="30" id="timer30"> 30 seconds</label>
+        <label><input type="radio" name="timerChoice" value="60" id="timer60"> 1 minute</label>
+        <label><input type="radio" name="timerChoice" value="300" id="timer300"> 5 minutes</label>
+        <label>
+          <input type="radio" name="timerChoice" value="custom" id="timerCustom"> Custom:
+          <input type="number" id="customTimerValue" min="1" max="3600" placeholder="Seconds" style="width:70px;">
+        </label>
+      </div>
       
       <input type="text" id="newUrl" placeholder="Enter URL or title to block">
       <button id="addBtn">Add</button>
