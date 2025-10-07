@@ -176,8 +176,12 @@ function injectTimerPopup(duration, blockedUrl) {
     timeLeft--;
     if (timeLeft < 0) {
       clearInterval(intervalId);
-      alert('Time\'s up! This tab will be closed.');
-      window.close(); // Close the tab
+      // Instead of closing the tab, just show a message
+      countdownEl.textContent = "⏰ Time's up! Please return to your task.";
+      // Optionally, you can also show an alert:
+      // alert("Time's up! Please return to your task.");
+      // Do NOT close the tab:
+      // window.close();
     }
   }
 
