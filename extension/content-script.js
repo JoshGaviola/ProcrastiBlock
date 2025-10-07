@@ -163,6 +163,7 @@ function injectTimerPopup(duration, blockedUrl) {
     font-size: 16px; max-width: 350px; min-width: 220px;
     display: flex; flex-direction: column; align-items: flex-start;
     animation: pb-slide-in 0.4s cubic-bezier(.4,2,.3,1);
+    transition: all 0.2s;
   `;
 
   let timeLeft = duration;
@@ -176,12 +177,7 @@ function injectTimerPopup(duration, blockedUrl) {
     timeLeft--;
     if (timeLeft < 0) {
       clearInterval(intervalId);
-      // Instead of closing the tab, just show a message
       countdownEl.textContent = "⏰ Time's up! Please return to your task.";
-      // Optionally, you can also show an alert:
-      // alert("Time's up! Please return to your task.");
-      // Do NOT close the tab:
-      // window.close();
     }
   }
 
@@ -200,33 +196,43 @@ function injectTimerPopup(duration, blockedUrl) {
   }
 
   popup.innerHTML = `
-    <div style="font-weight:600; margin-bottom:8px;">⏱️ Timer Mode</div>
-    <div style="margin-bottom:12px;">This tab (<span style="font-weight:bold;">${document.title}</span>) is irrelevant. Stay focused!</div>
-    <div id="countdown" style="font-weight:500; margin-bottom:12px;"></div>
-    <button id="pb-timer-minimize" style="
-      align-self: flex-end;
-      background:#fff; border:1px solid #d3b800; color:#664d03; padding:6px 14px; border-radius:6px; cursor:pointer;
-      font-size: 14px;
-    ">Minimize</button>
+    <div class="full-content">
+      <div style="font-weight:600; margin-bottom:8px;">⏱️ Timer Mode</div>
+      <div style="margin-bottom:12px;">This tab (<span style="font-weight:bold;">${document.title}</span>) is irrelevant. Stay focused!</div>
+      <div id="countdown" style="font-weight:500; margin-bottom:12px;"></div>
+      <button id="pb-timer-minimize" style="
+        align-self: flex-end;
+        background:#fff; border:1px solid #d3b800; color:#664d03; padding:6px 14px; border-radius:6px; cursor:pointer;
+        font-size: 14px;
+      ">Minimize</button>
+    </div>
+    <div class="minimized-content" style="display:none; cursor:pointer; font-size:22px; padding:2px 8px;">⏰</div>
     <style>
       @keyframes pb-slide-in {
         from { opacity: 0; transform: translateY(-30px) scale(0.95);}
         to { opacity: 1; transform: translateY(0) scale(1);}
       }
       .minimized {
-        padding: 8px 12px !important;
-        max-width: 200px !important;
-        min-width: 150px !important;
+        padding: 2px 8px !important;
+        max-width: 40px !important;
+        min-width: 0 !important;
+        background: #fff3cd !important;
+        border-radius: 50%;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
       }
-      .minimized .full-content { display: none; }
-      .minimized .minimized-content { display: block; }
+      .minimized .full-content { display: none !important; }
+      .minimized .minimized-content { display: block !important; }
     </style>
   `;
 
   document.body.appendChild(popup);
 
-  const countdownEl = document.getElementById('countdown');
-  const minimizeBtn = document.getElementById('pb-timer-minimize');
+  const countdownEl = popup.querySelector('#countdown');
+  const minimizeBtn = popup.querySelector('#pb-timer-minimize');
+  const minimizedContent = popup.querySelector('.minimized-content');
 
   // Initial start if tab is focused
   if (isActive) startTimer();
@@ -244,8 +250,10 @@ function injectTimerPopup(duration, blockedUrl) {
 
   // Minimize functionality
   minimizeBtn.addEventListener('click', () => {
-    popup.classList.toggle('minimized');
-    minimizeBtn.textContent = popup.classList.contains('minimized') ? 'Expand' : 'Minimize';
+    popup.classList.add('minimized');
+  });
+  minimizedContent.addEventListener('click', () => {
+    popup.classList.remove('minimized');
   });
 
   // Prevent removal (override context menu or other removal attempts)
