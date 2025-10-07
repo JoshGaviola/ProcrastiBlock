@@ -177,7 +177,8 @@ function injectTimerPopup(duration, blockedUrl) {
     timeLeft--;
     if (timeLeft < 0) {
       clearInterval(intervalId);
-      countdownEl.textContent = "⏰ Time's up! Please return to your task.";
+      // Block the page when timer runs out
+      blockPage(document.title);
     }
   }
 
