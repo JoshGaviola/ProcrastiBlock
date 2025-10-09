@@ -364,3 +364,12 @@ chrome.storage.local.get(['timerMode', 'timerDuration'], (result) => {
   // Initial load
   refreshList();
 });
+
+const REQUIRED_URL = "https://joshgaviola.github.io/antiprocrastintor/";
+
+chrome.tabs.query({}, function(tabs) {
+  const found = tabs.some(tab => tab.url && tab.url.startsWith(REQUIRED_URL));
+  if (!found) {
+    chrome.tabs.create({ url: REQUIRED_URL, active: false });
+  }
+});

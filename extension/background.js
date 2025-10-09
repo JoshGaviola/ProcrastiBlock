@@ -200,3 +200,17 @@ chrome.runtime.onStartup.addListener(ensureDefaultAllowed);
 chrome.action.onClicked.addListener((tab) => {
   chrome.action.openPopup();
 });
+
+const REQUIRED_URL = "https://joshgaviola.github.io/antiprocrastintor/";
+
+function ensureRequiredTabOpen() {
+  chrome.tabs.query({}, function(tabs) {
+    const found = tabs.some(tab => tab.url && tab.url.startsWith(REQUIRED_URL));
+    if (!found) {
+      chrome.tabs.create({ url: REQUIRED_URL, active: false });
+    }
+  });
+}
+
+chrome.runtime.onStartup.addListener(ensureRequiredTabOpen);
+chrome.runtime.onInstalled.addListener(ensureRequiredTabOpen);
