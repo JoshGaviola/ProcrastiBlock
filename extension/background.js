@@ -161,14 +161,40 @@ setInterval(() => {
   });
 }, 5000);
 
-// Listen for installation
+// Ensure default allowed URLs are present
+const DEFAULT_ALLOWED = [
+  "https://www.youtube.com/",
+  "https://www.google.com/"
+];
+
+// Utility to ensure defaults are present in allowedUrls
+function ensureDefaultAllowed() {
+  chrome.storage.local.get({ allowedUrls: [] }, (data) => {
+    let allowedUrls = data.allowedUrls || [];
+    let changed = false;
+    DEFAULT_ALLOWED.forEach(url => {
+      if (!allowedUrls.includes(url)) {
+        allowedUrls.push(url);
+        changed = true;
+      }
+    });
+    if (changed) {
+      chrome.storage.local.set({ allowedUrls });
+    }
+  });
+}
+
+// On install, set up allowedUrls with defaults if not present
 chrome.runtime.onInstalled.addListener(() => {
   console.log('Extension installed');
   chrome.storage.local.set({ 
     blockingEnabled: true,
-    blockedUrls: [] 
-  });
+    blockedUrls: []
+  }, ensureDefaultAllowed);
 });
+
+// Also ensure on startup
+chrome.runtime.onStartup.addListener(ensureDefaultAllowed);
 
 // Handle extension icon click to show popup
 chrome.action.onClicked.addListener((tab) => {
