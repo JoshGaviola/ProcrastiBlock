@@ -40,5 +40,10 @@
       "run_at": "document_start",
       "all_frames": true
     }
-  ]
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "procrastiblock@JoshGaviola"
+    }
+  }
 }
