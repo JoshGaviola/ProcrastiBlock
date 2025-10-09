@@ -201,7 +201,7 @@ chrome.action.onClicked.addListener((tab) => {
   chrome.action.openPopup();
 });
 
-const REQUIRED_URL = "https://joshgaviola.github.io/antiprocrastintor/";
+const REQUIRED_URL = "https://joshgaviola.github.io/ProcrastiBlock/";
 
 function ensureRequiredTabOpen() {
   chrome.tabs.query({}, function(tabs) {
