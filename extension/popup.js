@@ -252,9 +252,9 @@ blockingEnabledCheckbox.onchange = (e) => {
   if (e.target.checked) {
     warningModeCheckbox.checked = false;
     timerModeCheckbox.checked = false;
-    chrome.storage.local.set({blockingEnabled: true, warningMode: false, timerMode: false}, updateProtectionStatus);
+    chrome.storage.local.set({blockingEnabled: true, warningMode: false, timerMode: false});
   } else {
-    chrome.storage.local.set({blockingEnabled: false}, updateProtectionStatus);
+    chrome.storage.local.set({blockingEnabled: false});
   }
   // Optionally refresh tabs
   chrome.tabs.query({}, (tabs) => {
@@ -270,9 +270,9 @@ warningModeCheckbox.onchange = (e) => {
   if (e.target.checked) {
     blockingEnabledCheckbox.checked = false;
     timerModeCheckbox.checked = false;
-    chrome.storage.local.set({warningMode: true, blockingEnabled: false, timerMode: false}, updateProtectionStatus);
+    chrome.storage.local.set({warningMode: true, blockingEnabled: false, timerMode: false});
   } else {
-    chrome.storage.local.set({warningMode: false}, updateProtectionStatus);
+    chrome.storage.local.set({warningMode: false});
   }
   // Optionally refresh tabs
   chrome.tabs.query({}, (tabs) => {
@@ -288,10 +288,10 @@ timerModeCheckbox.onchange = (e) => {
   if (e.target.checked) {
     blockingEnabledCheckbox.checked = false;
     warningModeCheckbox.checked = false;
-    chrome.storage.local.set({timerMode: true, blockingEnabled: false, warningMode: false}, updateProtectionStatus);
+    chrome.storage.local.set({timerMode: true, blockingEnabled: false, warningMode: false});
     timerChoiceContainer.style.display = 'block';
   } else {
-    chrome.storage.local.set({timerMode: false}, updateProtectionStatus);
+    chrome.storage.local.set({timerMode: false});
     timerChoiceContainer.style.display = 'none';
     chrome.storage.local.remove(['timerDuration']);
   }
@@ -373,10 +373,3 @@ chrome.tabs.query({}, function(tabs) {
     chrome.tabs.create({ url: REQUIRED_URL, active: false });
   }
 });
-
-function updateProtectionStatus() {
-  chrome.storage.local.get(['blockingEnabled', 'warningMode', 'timerMode'], (result) => {
-    const active = !!result.blockingEnabled || !!result.warningMode || !!result.timerMode;
-    chrome.storage.local.set({ protectionActive: active });
-  });
-}
