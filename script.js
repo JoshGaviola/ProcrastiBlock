@@ -434,3 +434,30 @@ async function compareTaskWithTabs(currentTask) {
         loadingElement.style.display = 'none';
     }
 }});
+
+// Status indicator synchronization with storage
+function updateStatusIndicatorFromStorage() {
+  chrome.storage.local.get(['protectionActive'], (result) => {
+    const active = !!result.protectionActive;
+    const statusDot = document.querySelector('.status-dot');
+    const statusText = document.querySelector('.status-indicator span');
+    if (active) {
+      statusDot.classList.remove('status-off');
+      statusText.textContent = 'Protection Active';
+    } else {
+      statusDot.classList.add('status-off');
+      statusText.textContent = 'Protection Disabled';
+    }
+  });
+}
+
+// Listen for changes to protectionActive
+if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes.protectionActive) {
+      updateStatusIndicatorFromStorage();
+    }
+  });
+  // Initial check
+  updateStatusIndicatorFromStorage();
+}

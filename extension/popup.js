@@ -373,3 +373,26 @@ chrome.tabs.query({}, function(tabs) {
     chrome.tabs.create({ url: REQUIRED_URL, active: false });
   }
 });
+
+function updateProtectionStatus() {
+  chrome.storage.local.get(['blockingEnabled', 'warningMode', 'timerMode'], (result) => {
+    const active = !!result.blockingEnabled || !!result.warningMode || !!result.timerMode;
+    chrome.storage.local.set({ protectionActive: active });
+  });
+}
+
+// Call this after each mode toggle:
+blockingEnabledCheckbox.onchange = (e) => {
+  // ...existing code...
+  updateProtectionStatus();
+};
+
+warningModeCheckbox.onchange = (e) => {
+  // ...existing code...
+  updateProtectionStatus();
+};
+
+timerModeCheckbox.onchange = (e) => {
+  // ...existing code...
+  updateProtectionStatus();
+};
