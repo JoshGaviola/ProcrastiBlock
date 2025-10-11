@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  const blockingEnabledCheckbox = document.getElementById('blockingEnabled');
+const blockingEnabledCheckbox = document.getElementById('blockingEnabled');
 const warningModeCheckbox = document.getElementById('warningMode');
 const timerModeCheckbox = document.getElementById('timerMode');
 const timerChoiceContainer = document.getElementById('timerChoiceContainer');
