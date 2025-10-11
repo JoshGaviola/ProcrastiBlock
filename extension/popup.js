@@ -252,9 +252,9 @@ blockingEnabledCheckbox.onchange = (e) => {
   if (e.target.checked) {
     warningModeCheckbox.checked = false;
     timerModeCheckbox.checked = false;
-    chrome.storage.local.set({blockingEnabled: true, warningMode: false, timerMode: false});
+    chrome.storage.local.set({blockingEnabled: true, warningMode: false, timerMode: false}, updateProtectionStatus);
   } else {
-    chrome.storage.local.set({blockingEnabled: false});
+    chrome.storage.local.set({blockingEnabled: false}, updateProtectionStatus);
   }
   // Optionally refresh tabs
   chrome.tabs.query({}, (tabs) => {
@@ -270,9 +270,9 @@ warningModeCheckbox.onchange = (e) => {
   if (e.target.checked) {
     blockingEnabledCheckbox.checked = false;
     timerModeCheckbox.checked = false;
-    chrome.storage.local.set({warningMode: true, blockingEnabled: false, timerMode: false});
+    chrome.storage.local.set({warningMode: true, blockingEnabled: false, timerMode: false}, updateProtectionStatus);
   } else {
-    chrome.storage.local.set({warningMode: false});
+    chrome.storage.local.set({warningMode: false}, updateProtectionStatus);
   }
   // Optionally refresh tabs
   chrome.tabs.query({}, (tabs) => {
@@ -288,10 +288,10 @@ timerModeCheckbox.onchange = (e) => {
   if (e.target.checked) {
     blockingEnabledCheckbox.checked = false;
     warningModeCheckbox.checked = false;
-    chrome.storage.local.set({timerMode: true, blockingEnabled: false, warningMode: false});
+    chrome.storage.local.set({timerMode: true, blockingEnabled: false, warningMode: false}, updateProtectionStatus);
     timerChoiceContainer.style.display = 'block';
   } else {
-    chrome.storage.local.set({timerMode: false});
+    chrome.storage.local.set({timerMode: false}, updateProtectionStatus);
     timerChoiceContainer.style.display = 'none';
     chrome.storage.local.remove(['timerDuration']);
   }
@@ -380,19 +380,3 @@ function updateProtectionStatus() {
     chrome.storage.local.set({ protectionActive: active });
   });
 }
-
-// Call this after each mode toggle:
-blockingEnabledCheckbox.onchange = (e) => {
-  // ...existing code...
-  updateProtectionStatus();
-};
-
-warningModeCheckbox.onchange = (e) => {
-  // ...existing code...
-  updateProtectionStatus();
-};
-
-timerModeCheckbox.onchange = (e) => {
-  // ...existing code...
-  updateProtectionStatus();
-};
