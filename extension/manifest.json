@@ -39,6 +39,14 @@
       "js": ["content-script.js"],
       "run_at": "document_start",
       "all_frames": true
+    },
+    {
+      "matches": [
+        "file:///D:/project/web/ProcrastiBlock/index.html",
+        "https://joshgaviola.github.io/ProcrastiBlock/"
+      ],
+      "js": ["dashboard-status-injector.js"],
+      "run_at": "document_idle"
     }
   ],
   "browser_specific_settings": {
