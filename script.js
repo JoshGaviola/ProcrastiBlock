@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const taskInput = document.getElementById('task-input');
     const taskList = document.getElementById('task-list');
     const modeButtons = document.querySelectorAll('.mode-btn');
+    const sensitivityInfoTrigger = document.getElementById('sensitivity-info-trigger');
+    const sensitivityExplainer = document.getElementById('sensitivity-explainer');
     
     // Initialize the model
     initializeModel();
@@ -77,6 +79,14 @@ document.addEventListener('DOMContentLoaded', function() {
             setupTaskItem(item);
         });
         setupTaskInputObserver();
+        
+        // Sensitivity info toggle
+        if (sensitivityInfoTrigger && sensitivityExplainer) {
+            sensitivityInfoTrigger.addEventListener('click', () => {
+                const visible = sensitivityExplainer.style.display === 'block';
+                sensitivityExplainer.style.display = visible ? 'none' : 'block';
+            });
+        }
     }
     
     function addNewTask() {

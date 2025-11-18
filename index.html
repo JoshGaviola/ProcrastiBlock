@@ -67,6 +67,13 @@
             
             <div class="threshold-display">
                 Sensitivity: <span id="threshold-value">0.5</span>
+                <span id="sensitivity-info-trigger" style="margin-left:6px; cursor:pointer; color:#3498db; font-size:13px;" title="Explain sensitivity">?</span>
+            </div>
+            <div id="sensitivity-explainer" style="display:none; font-size:12px; color:#555; line-height:1.4; background:#eef6ff; padding:8px 10px; border-radius:6px; margin-bottom:10px;">
+              Determines how strict relevance detection is.<br>
+              Lower (lenient): More tabs count as relevant.<br>
+              Higher (strict): Only closely related tabs stay; others marked irrelevant.<br>
+              Rule: Tab title embedding similarity >= slider value => Relevant; otherwise Irrelevant.
             </div>
             
             <div class="slider-container">
