@@ -155,7 +155,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 setInterval(() => {
   chrome.tabs.query({url: "file:///D:/project/web/ProcrastiBlock/index.html" || "https://joshgaviola.github.io/ProcrastiBlock/"}, (tabs) => {
     if (tabs.length > 0) {
-      console.log('Sending cleanup trigger to FocusGuard tab');
+      console.log('Sending cleanup trigger to Procrastiblock tab');
       chrome.tabs.sendMessage(tabs[0].id, {action: "triggerCleanup"});
     }
   });

@@ -6,7 +6,7 @@
   let cleanupInterval = null;
   let processedItems = new Set();
   
-  console.log('Content extractor loaded on FocusGuard page');
+  console.log('Content extractor loaded on Procrastiblock page');
 
   function initObserver() {
     const container = document.getElementById('tab-task-similarity');

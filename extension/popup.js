@@ -240,14 +240,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   };
 
-  // Extract from FocusGuard
+  // Extract from Procrastiblock
   document.getElementById('extractBtn').onclick = () => {
       chrome.tabs.query({url: "file:///D:/project/web/ProcrastiBlock/index.html" || "https://joshgaviola.github.io/ProcrastiBlock/"}, (tabs) => {
       if (tabs.length > 0) {
         chrome.tabs.sendMessage(tabs[0].id, {action: "triggerExtraction"});
-        alert('Extraction request sent to FocusGuard');
+        alert('Extraction request sent to Procrastiblock');
       } else {
-        alert('FocusGuard tab not found. Please open the FocusGuard page first.');
+        alert('Procrastiblock tab not found. Please open the Procrastiblock page first.');
       }
     });
   };

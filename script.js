@@ -1,7 +1,7 @@
 // Combined script with all functionality
 document.addEventListener('DOMContentLoaded', function() {
     // --- Semantic Similarity AI ---
-    console.log("FocusGuard script loaded!");
+    console.log("Procrastiblock script loaded!");
     
     let generateEmbedding = null;
     let modelLoading = false;
