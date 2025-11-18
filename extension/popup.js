@@ -3,6 +3,54 @@ document.addEventListener('DOMContentLoaded', function() {
   const refreshBtn = document.getElementById('refreshBtn');
   const injectBtn = document.getElementById('injectBtn');
 
+  // DROPDOWN TAB LIST REPLACEMENT
+  const tabsToggle = document.getElementById('tabsToggle');
+  const tabsPanel = document.getElementById('tabsPanel');
+  const tabListEl = document.getElementById('tabDropdownList');
+  const tabCountSpan = document.getElementById('tabCount');
+
+  tabsToggle.addEventListener('click', () => {
+    const open = tabsPanel.style.display === 'block';
+    tabsPanel.style.display = open ? 'none' : 'block';
+    tabsToggle.textContent = `All Open Tabs (${tabCountSpan.textContent}) ${open ? '▸' : '▾'}`;
+  });
+
+  function loadTabTitles() {
+    chrome.tabs.query({}, function(tabs) {
+      tabListEl.innerHTML = '';
+      let count = 0;
+      tabs.forEach(tab => {
+        if (tab.title && tab.url) {
+          count++;
+          const li = document.createElement('li');
+          const label = tab.title.length > 80 ? tab.title.substring(0,77) + '…' : tab.title;
+          li.textContent = label;
+          li.title = tab.title;
+          li.dataset.tabId = tab.id;
+          li.dataset.url = tab.url;
+          li.addEventListener('click', () => {
+            const id = parseInt(li.dataset.tabId, 10);
+            chrome.tabs.update(id, { active: true });
+            // collapse after selection
+            tabsPanel.style.display = 'none';
+            tabsToggle.textContent = `All Open Tabs (${count}) ▸`;
+          });
+          tabListEl.appendChild(li);
+        }
+      });
+      tabCountSpan.textContent = count;
+      // keep arrow symbol consistent
+      const currentlyOpen = tabsPanel.style.display === 'block';
+      tabsToggle.textContent = `All Open Tabs (${count}) ${currentlyOpen ? '▾' : '▸'}`;
+    });
+  }
+
+  function getTabTitlesArray() {
+    const titles = [];
+    tabListEl.querySelectorAll('li').forEach(li => titles.push(li.title));
+    return titles;
+  }
+
   // Load tab titles when popup opens
   loadTabTitles();
 
@@ -27,25 +75,37 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function loadTabTitles() {
     chrome.tabs.query({}, function(tabs) {
-      tabList.innerHTML = '';
-      
+      tabListEl.innerHTML = '';
+      let count = 0;
       tabs.forEach(tab => {
         if (tab.title && tab.url) {
-          const tabItem = document.createElement('div');
-          tabItem.className = 'tab-item';
-          tabItem.textContent = tab.title;
-          tabList.appendChild(tabItem);
+          count++;
+          const li = document.createElement('li');
+          const label = tab.title.length > 80 ? tab.title.substring(0,77) + '…' : tab.title;
+          li.textContent = label;
+          li.title = tab.title;
+          li.dataset.tabId = tab.id;
+          li.dataset.url = tab.url;
+          li.addEventListener('click', () => {
+            const id = parseInt(li.dataset.tabId, 10);
+            chrome.tabs.update(id, { active: true });
+            // collapse after selection
+            tabsPanel.style.display = 'none';
+            tabsToggle.textContent = `All Open Tabs (${count}) ▸`;
+          });
+          tabListEl.appendChild(li);
         }
       });
+      tabCountSpan.textContent = count;
+      // keep arrow symbol consistent
+      const currentlyOpen = tabsPanel.style.display === 'block';
+      tabsToggle.textContent = `All Open Tabs (${count}) ${currentlyOpen ? '▾' : '▸'}`;
     });
   }
 
   function getTabTitlesArray() {
-    const tabItems = tabList.querySelectorAll('.tab-item');
     const titles = [];
-    tabItems.forEach(item => {
-      titles.push(item.textContent);
-    });
+    tabListEl.querySelectorAll('li').forEach(li => titles.push(li.title));
     return titles;
   }
 

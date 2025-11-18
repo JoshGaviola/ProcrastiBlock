@@ -184,19 +184,46 @@
     #permissionWarning {
       margin-top: 15px;
     }
+
+    .tabs-toggle {
+      background:#ffffff;
+      border:1px solid #ddd;
+      padding:10px 14px;
+      border-radius:8px;
+      font-size:14px;
+      font-weight:600;
+      cursor:pointer;
+      user-select:none;
+      box-shadow:0 2px 4px rgba(0,0,0,0.08);
+      margin-bottom:6px;
+    }
+    .tabs-toggle:hover { background:#f3f7fb; }
+    #tabDropdownList { list-style:none; margin:0; padding:0; }
+    #tabDropdownList li {
+      padding:10px 12px;
+      border-bottom:1px solid #eee;
+      font-size:13px;
+      cursor:pointer;
+      background:#fff;
+    }
+    #tabDropdownList li:hover { background:#e8f4fc; }
+    #tabDropdownList li:last-child { border-bottom:none; }
   </style>
 </head>
 <body>
   
   <div id="tabsContent">
-    <h3>All Open Tabs</h3>
-    <div id="tabList" class="tab-list"></div>
-    
-    <div class="controls">
-      <button id="refreshBtn">Refresh</button>
-      <button id="injectBtn">Inject Titles</button>
+    <!-- REPLACED All Open Tabs section -->
+    <div class="tabs-dropdown">
+      <div id="tabsToggle" class="tabs-toggle">All Open Tabs (<span id="tabCount">0</span>) ▾</div>
+      <div id="tabsPanel" style="display:none;">
+        <ul id="tabDropdownList" class="tab-list" style="max-height:260px;"></ul>
+        <div class="controls" style="margin-top:10px;">
+          <button id="refreshBtn">Refresh</button>
+          <button id="injectBtn">Inject Titles</button>
+        </div>
+      </div>
     </div>
-
     <!-- FocusGuard Blocker Controls START -->
     <div class="focus-blocker-section">
       <h3>Procrasti-Blocker</h3>
