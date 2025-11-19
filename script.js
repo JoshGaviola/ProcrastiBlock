@@ -35,6 +35,25 @@ document.addEventListener('DOMContentLoaded', function() {
         taskInput.addEventListener('blur', saveCurrentTask);
     }
 
+    // Persist sensitivity (slider) across refreshes
+    const SENSITIVITY_KEY = 'pb_sensitivity';
+    function saveSensitivity() {
+        if (!slider) return;
+        localStorage.setItem(SENSITIVITY_KEY, String(slider.value));
+    }
+    function restoreSensitivity() {
+        if (!slider) return;
+        const saved = localStorage.getItem(SENSITIVITY_KEY);
+        if (saved !== null) {
+            slider.value = saved;
+            if (thresholdValue) thresholdValue.textContent = saved;
+        } else {
+            // ensure display matches initial slider value
+            if (thresholdValue) thresholdValue.textContent = slider.value;
+        }
+    }
+    restoreSensitivity();
+
     // Initialize the model
     initializeModel();
     
@@ -73,10 +92,18 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupEventListeners() {
         // Update slider value display
         if (slider) {
+            let sliderDebounce;
             slider.addEventListener('input', function() {
                 if (thresholdValue) {
                     thresholdValue.textContent = this.value;
                 }
+                saveSensitivity();
+                // Re-run comparison for current task (debounced)
+                clearTimeout(sliderDebounce);
+                sliderDebounce = setTimeout(() => {
+                    const currentTask = taskInput ? taskInput.value.trim() : '';
+                    if (currentTask) compareTaskWithTabs(currentTask);
+                }, 300);
             });
         }
         
