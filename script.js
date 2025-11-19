@@ -15,7 +15,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const modeButtons = document.querySelectorAll('.mode-btn');
     const sensitivityInfoTrigger = document.getElementById('sensitivity-info-trigger');
     const sensitivityExplainer = document.getElementById('sensitivity-explainer');
-    
+
+    // Persist current task across refreshes
+    const CURRENT_TASK_KEY = 'pb_current_task';
+    function saveCurrentTask() {
+        if (!taskInput) return;
+        localStorage.setItem(CURRENT_TASK_KEY, taskInput.value.trim());
+    }
+    // Restore on load
+    if (taskInput) {
+        const saved = localStorage.getItem(CURRENT_TASK_KEY);
+        if (saved) taskInput.value = saved;
+        // Save on input (debounced) and blur
+        let saveTimer;
+        taskInput.addEventListener('input', () => {
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(saveCurrentTask, 300);
+        });
+        taskInput.addEventListener('blur', saveCurrentTask);
+    }
+
     // Initialize the model
     initializeModel();
     
@@ -142,28 +161,28 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function setActiveTask(taskText, buttonElement) {
         taskInput.value = taskText;
-        
         // Reset all play buttons
         document.querySelectorAll('.task-item .btn').forEach(btn => {
             btn.innerHTML = '<i class="fas fa-play"></i>';
         });
-        
         // Mark this one as active
         buttonElement.innerHTML = '<i class="fas fa-check"></i>';
+        // Persist active task
+        saveCurrentTask();
     }
-    
+
     function editTask(taskSpan, originalText) {
         const newTaskText = prompt('Edit your task:', taskSpan.textContent);
         if (newTaskText !== null && newTaskText.trim() !== '') {
             taskSpan.textContent = newTaskText.trim();
-            
             // If this was the active task, update the input field too
             if (taskInput.value === originalText) {
                 taskInput.value = newTaskText.trim();
+                saveCurrentTask();
             }
         }
     }
-    
+
     function handleModeChange() {
         modeButtons.forEach(btn => btn.classList.remove('active'));
         this.classList.add('active');
