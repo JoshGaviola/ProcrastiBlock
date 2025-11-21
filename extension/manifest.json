@@ -1,14 +1,11 @@
 {
   "manifest_version": 3,
   "name": "Procrastiblock - Procrastination Detector",
-  "version": "1.1",
+  "version": "1.1.2",
   "description": "AI-powered focus assistant that detects distracting tabs",
   "permissions": [
     "tabs",
-    "activeTab",
-    "scripting",
     "storage",
-    "webNavigation",
     "webRequest",
     "webRequestBlocking"
   ],
@@ -20,18 +17,15 @@
     "default_title": "ProcrastiBlock"
   },
   "background": {
-    "service_worker": "background.js",
-    "scripts": ["background.js"]
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "run_at": "document_end"
-    },
-    {
-      "matches": ["file:///D:/project/web/ProcrastiBlock/index.html", "https://joshgaviola.github.io/ProcrastiBlock/"],
-      "js": ["contentExtractor.js"],
+      "matches": [
+        "file:///D:/project/web/ProcrastiBlock/index.html",
+        "https://joshgaviola.github.io/ProcrastiBlock/"
+      ],
+      "js": ["content.js", "contentExtractor.js", "dashboard-status-injector.js"],
       "run_at": "document_idle"
     },
     {
@@ -39,14 +33,6 @@
       "js": ["content-script.js"],
       "run_at": "document_start",
       "all_frames": true
-    },
-    {
-      "matches": [
-        "file:///D:/project/web/ProcrastiBlock/index.html",
-        "https://joshgaviola.github.io/ProcrastiBlock/"
-      ],
-      "js": ["dashboard-status-injector.js"],
-      "run_at": "document_idle"
     }
   ],
   "browser_specific_settings": {

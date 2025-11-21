@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-  const tabList = document.getElementById('tabList');
+  // const tabList = document.getElementById('tabList'); // removed (unused)
   const refreshBtn = document.getElementById('refreshBtn');
   const injectBtn = document.getElementById('injectBtn');
 
@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', function() {
           li.addEventListener('click', () => {
             const id = parseInt(li.dataset.tabId, 10);
             chrome.tabs.update(id, { active: true });
-            // collapse after selection
             tabsPanel.style.display = 'none';
             tabsToggle.textContent = `All Open Tabs (${count}) ▸`;
           });
@@ -39,7 +38,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       });
       tabCountSpan.textContent = count;
-      // keep arrow symbol consistent
       const currentlyOpen = tabsPanel.style.display === 'block';
       tabsToggle.textContent = `All Open Tabs (${count}) ${currentlyOpen ? '▾' : '▸'}`;
     });
@@ -53,61 +51,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Load tab titles when popup opens
   loadTabTitles();
-
   refreshBtn.addEventListener('click', loadTabTitles);
-  
+
   injectBtn.addEventListener('click', function() {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-      if (tabs[0]) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          action: "injectTitles",
-          tabTitles: getTabTitlesArray()
-        }, function(response) {
-          if (response && response.status === "success") {
-            alert("Tab titles injected successfully!");
-          } else {
-            alert("Failed to inject titles. Make sure you're on a supported page.");
-          }
-        });
-      }
-    });
-  });
-
-  function loadTabTitles() {
-    chrome.tabs.query({}, function(tabs) {
-      tabListEl.innerHTML = '';
-      let count = 0;
-      tabs.forEach(tab => {
-        if (tab.title && tab.url) {
-          count++;
-          const li = document.createElement('li');
-          const label = tab.title.length > 80 ? tab.title.substring(0,77) + '…' : tab.title;
-          li.textContent = label;
-          li.title = tab.title;
-          li.dataset.tabId = tab.id;
-          li.dataset.url = tab.url;
-          li.addEventListener('click', () => {
-            const id = parseInt(li.dataset.tabId, 10);
-            chrome.tabs.update(id, { active: true });
-            // collapse after selection
-            tabsPanel.style.display = 'none';
-            tabsToggle.textContent = `All Open Tabs (${count}) ▸`;
-          });
-          tabListEl.appendChild(li);
+      if (!tabs[0]) return;
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: "injectTitles",
+        tabTitles: getTabTitlesArray()
+      }, function(response) {
+        if (response && response.status === "success") {
+          alert("Tab titles injected successfully!");
+        } else {
+          alert("Failed to inject titles. Make sure you're on the ProcrastiBlock page.");
         }
       });
-      tabCountSpan.textContent = count;
-      // keep arrow symbol consistent
-      const currentlyOpen = tabsPanel.style.display === 'block';
-      tabsToggle.textContent = `All Open Tabs (${count}) ${currentlyOpen ? '▾' : '▸'}`;
     });
-  }
-
-  function getTabTitlesArray() {
-    const titles = [];
-    tabListEl.querySelectorAll('li').forEach(li => titles.push(li.title));
-    return titles;
-  }
+  });
 
   // Load current blocklist and enabled state
   function refreshList() {
@@ -242,12 +202,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Extract from Procrastiblock
   document.getElementById('extractBtn').onclick = () => {
-      chrome.tabs.query({url: "file:///D:/project/web/ProcrastiBlock/index.html" || "https://joshgaviola.github.io/ProcrastiBlock/"}, (tabs) => {
+    chrome.tabs.query({
+      url: [
+        "file:///D:/project/web/ProcrastiBlock/index.html",
+        "https://joshgaviola.github.io/ProcrastiBlock/"
+      ]
+    }, (tabs) => {
       if (tabs.length > 0) {
         chrome.tabs.sendMessage(tabs[0].id, {action: "triggerExtraction"});
-        alert('Extraction request sent to Procrastiblock');
+        alert('Extraction request sent to ProcrastiBlock');
       } else {
-        alert('Procrastiblock tab not found. Please open the Procrastiblock page first.');
+        alert('ProcrastiBlock tab not found. Please open the page first.');
       }
     });
   };
@@ -426,7 +391,6 @@ chrome.storage.local.get(['timerMode', 'timerDuration'], (result) => {
 });
 
 const REQUIRED_URL = "https://joshgaviola.github.io/ProcrastiBlock/";
-
 chrome.tabs.query({}, function(tabs) {
   const found = tabs.some(tab => tab.url && tab.url.startsWith(REQUIRED_URL));
   if (!found) {

@@ -129,18 +129,6 @@ chrome.webRequest.onBeforeRequest.addListener(
   ["blocking"]
 );
 
-// Listen for messages to set/get warningMode
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'getWarningMode') {
-    sendResponse({ enabled: warningMode });
-  } else if (request.action === 'setWarningMode') {
-    warningMode = !!request.enabled;
-    chrome.storage.local.set({ warningMode });
-    sendResponse({ success: true });
-  }
-  return true;
-});
-
 // Cleanup function
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "updateIrrelevantTabs") {
@@ -153,13 +141,30 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // Periodically check for irrelevant tabs
 setInterval(() => {
-  chrome.tabs.query({url: "file:///D:/project/web/ProcrastiBlock/index.html" || "https://joshgaviola.github.io/ProcrastiBlock/"}, (tabs) => {
+  chrome.tabs.query({
+    url: [
+      "file:///D:/project/web/ProcrastiBlock/index.html",
+      "https://joshgaviola.github.io/ProcrastiBlock/"
+    ]
+  }, (tabs) => {
     if (tabs.length > 0) {
-      console.log('Sending cleanup trigger to Procrastiblock tab');
+      console.log('Sending cleanup trigger to ProcrastiBlock tab');
       chrome.tabs.sendMessage(tabs[0].id, {action: "triggerCleanup"});
     }
   });
 }, 5000);
+
+// Remove unused message handlers (getWarningMode / updateIrrelevantTabs)
+// Keep a single onMessage for getTabInfo only.
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "getTabInfo") {
+    chrome.tabs.query({}, function(tabs) {
+      sendResponse({ tabs: tabs.map(tab => ({ title: tab.title, url: tab.url })) });
+    });
+    return true;
+  }
+  return false;
+});
 
 // Ensure default allowed URLs are present
 const DEFAULT_ALLOWED = [
